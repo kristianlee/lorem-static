@@ -13,4 +13,6 @@ deploy:
   promote: false
   region: eu-west-1
   edge: true # opt in to dpl v2
+  on:
+    branch: get-iac-working
   # if: branch = get-iac-working
