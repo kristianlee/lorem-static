@@ -1,6 +1,4 @@
-stages:
-  - deploy
-
+language: javascript
 
 deploy:
   provider: cloudformation
