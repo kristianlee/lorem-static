@@ -9,5 +9,5 @@ Demoing a static site
 - Log in to Travis-ci.com (with github), Sync account, enable repositories for Travis' use. 
 - Get a sample CF (e.g. [Minimum viable template](https://adamj.eu/tech/2019/08/19/cloudformation-minimum-viable-template/))
 - Log in to Travis on the CLI: `travis login --pro`
-- Encrypt the AWS access keys using this format: `travis encrypt pro AWS_ACCESS_KEY_ID="bla" --add`
+- Encrypt the AWS access keys using this format: `travis encrypt pro "secretbla" --add`
 
