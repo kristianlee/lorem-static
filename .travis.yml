@@ -1,4 +1,6 @@
 language: javascript
+install: skip
+script: skip 
 
 deploy:
   provider: cloudformation
