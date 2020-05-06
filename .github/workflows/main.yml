@@ -20,7 +20,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: CloudFormation lint action
-      uses: ryof/cloudformation-lint-action@1.0.1
+      uses: scottbrenner/cfn-lint-action@master
+      with:
+        args: static_site.yml
 
   deploy:
     runs-on: ubuntu-latest
@@ -38,7 +40,6 @@ jobs:
         with:
           stackName: lorem-static
           templateFile: static_site.yml
-          noExecuteChangeset: true
           parameters: DomainName=kristianjlee.com LogsLifecycle=true CertificateARN=${{ secrets.certificate_arn }} DNSZoneID=${{ secrets.dnszone_id }}
       - name: Print App Hostname
         run: echo ${{ steps.deploy-cfn.outputs.cf_output_Website }}
