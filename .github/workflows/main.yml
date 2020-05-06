@@ -41,6 +41,6 @@ jobs:
         with:
           stackName: lorem-static
           templateFile: static_site.yml
-          parameters: DomainName=kristianjlee.com LogsLifecycle=true CertificateARN=${{ secrets.certificate_arn }} DNSZoneID=${{ secrets.dnszone_id }} DummyParam=bla
+          parameters: DomainName=kristianjlee.com LogsLifecycle=true CertificateARN=${{ secrets.certificate_arn }} DNSZoneID=${{ secrets.dnszone_id }}
       - name: Print App Hostname
         run: echo ${{ steps.deploy-cfn.outputs.cf_output_Website }}

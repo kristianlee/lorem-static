@@ -18,9 +18,6 @@ Parameters:
     Type: String
     Description: Add day by day access log rotation
     AllowedValues: ['true', 'false']
-  
-  DummyParam:
-    Type: String
 
 Conditions:
   LogRotation: !Equals
