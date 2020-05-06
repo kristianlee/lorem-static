@@ -13,6 +13,16 @@ Parameters:
   CertificateARN:
     Type: String
     Description: identifier for the AWS Cert manager certificate
+  
+  LogsLifecycle:
+    Type: String
+    Description: Add day by day access log rotation
+    AllowedValues: ['true', 'false']
+
+Conditions:
+  LogRotation: !Equals
+    - !Ref LogsLifecycle
+    - 'true'
 
 Resources:
   RootBucket:
@@ -45,23 +55,6 @@ Resources:
             Principal: '*'
             Resource: !Sub '${RootBucket.Arn}/*'
 
-  WWWBucket: 
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Join 
-      - '-'
-      - - !Ref 'AWS::StackName'
-        - !Ref DomainName
-        - www
-      AccessControl: BucketOwnerFullControl
-      WebsiteConfiguration:
-        RedirectAllRequestsTo:
-          HostName: !Ref RootBucket
-      Tags:
-        - Key: Project
-          Value: lorem-static 
-
-  
   LoggingBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -70,6 +63,14 @@ Resources:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
       AccessControl: LogDeliveryWrite
+      LifecycleConfiguration:
+        Rules:
+          - Id: remove logs after 1 day
+            ExpirationInDays: 1
+            Status: !If
+            - LogRotation
+            - Enabled
+            - Disabled
       BucketName: !Join 
       - '-'
       - - !Ref 'AWS::StackName'
@@ -85,17 +86,14 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Ref DomainName
+          - !Sub 'www.${DomainName}'
         Origins:
           - CustomOriginConfig:
               HTTPPort: 80
               HTTPSPort: 443
               OriginKeepaliveTimeout: 5
-              OriginProtocolPolicy: 'https-only'
+              OriginProtocolPolicy: 'http-only'
               OriginReadTimeout: 30
-              OriginSSLProtocols:
-                - TLSv1
-                - TLSv1.1
-                - TLSv1.2
             DomainName: !GetAtt RootBucket.DomainName
             Id: !Join 
             - '-'
@@ -135,18 +133,18 @@ Resources:
   DNSNames:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneName: !Sub '${DomainName}.'
+      HostedZoneId: !Ref DNSZoneID
       RecordSets:
-      - Name: !Ref DomainName
+      - Name: !Sub '${DomainName}.'
         Type: A
         AliasTarget:
           DNSName: !GetAtt Cloudfront.DomainName
           EvaluateTargetHealth: false
-          HostedZoneId: !Ref DNSZoneID
+          HostedZoneId: Z2FDTNDATAQYW2
       - Name: !Sub 'www.${DomainName}'
         Type: A
         AliasTarget:
           DNSName: !GetAtt Cloudfront.DomainName
           EvaluateTargetHealth: false
-          HostedZoneId: !Ref DNSZoneID
+          HostedZoneId: Z2FDTNDATAQYW2
   
