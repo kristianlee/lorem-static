@@ -20,5 +20,5 @@ deploy:
     DomainName: kristianjlee.com
     LogsLifecycle: 'true' 
   edge: true
-  # on:
-  #   branch: master
+  on:
+    branch: fix-build
