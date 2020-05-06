@@ -1,0 +1,150 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Setting up a static site using an S3 Bucket with Cloudfront
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: DNS name of the website
+    
+  DNSZoneID: 
+    Type: String
+    Description: which DNS zone is the website being hosted in?
+  
+  CertificateARN:
+    Type: String
+    Description: identifier for the AWS Cert manager certificate
+  
+  LogsLifecycle:
+    Type: String
+    Description: Add day by day access log rotation
+    AllowedValues: ['true', 'false']
+
+Conditions:
+  LogRotation: !Equals
+    - !Ref LogsLifecycle
+    - 'true'
+
+Resources:
+  RootBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join 
+      - '-'
+      - - !Ref 'AWS::StackName'
+        - !Ref DomainName
+        - root
+      AccessControl: PublicRead
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucket
+        LogFilePrefix: 's3/'
+      WebsiteConfiguration:
+        IndexDocument: 'index.html'
+      Tags:
+        - Key: Project
+          Value: lorem-static 
+
+  RootBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref RootBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Action: 's3:GetObject'
+            Principal: '*'
+            Resource: !Sub '${RootBucket.Arn}/*'
+
+  LoggingBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      AccessControl: LogDeliveryWrite
+      LifecycleConfiguration:
+        Rules:
+          - Id: remove logs after 1 day
+            ExpirationInDays: 1
+            Status: !If
+            - LogRotation
+            - Enabled
+            - Disabled
+      BucketName: !Join 
+      - '-'
+      - - !Ref 'AWS::StackName'
+        - !Ref DomainName
+        - logs
+      Tags:
+        - Key: Project
+          Value: lorem-static 
+  
+  Cloudfront:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref DomainName
+          - !Sub 'www.${DomainName}'
+        Origins:
+          - CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginKeepaliveTimeout: 5
+              OriginProtocolPolicy: 'http-only'
+              OriginReadTimeout: 30
+            DomainName: !GetAtt RootBucket.DomainName
+            Id: !Join 
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - !Ref DomainName
+              - root
+        DefaultRootObject: 'index.html'
+        Enabled: true
+        HttpVersion: 'http2'
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - GET
+          - HEAD
+          Compress: true
+          TargetOriginId: !Join 
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - !Ref DomainName
+              - root
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        ViewerCertificate:
+          MinimumProtocolVersion: TLSv1.2_2018
+          AcmCertificateArn: !Ref CertificateARN
+          SslSupportMethod: sni-only
+        Logging:
+          Bucket: !GetAtt LoggingBucket.DomainName
+          IncludeCookies: false
+          Prefix: 'cdn/'
+      Tags:
+        - Key: Project
+          Value: lorem-static 
+
+  DNSNames:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: !Ref DNSZoneID
+      RecordSets:
+      - Name: !Sub '${DomainName}.'
+        Type: A
+        AliasTarget:
+          DNSName: !GetAtt Cloudfront.DomainName
+          EvaluateTargetHealth: false
+          HostedZoneId: Z2FDTNDATAQYW2
+      - Name: !Sub 'www.${DomainName}'
+        Type: A
+        AliasTarget:
+          DNSName: !GetAtt Cloudfront.DomainName
+          EvaluateTargetHealth: false
+          HostedZoneId: Z2FDTNDATAQYW2
+  
