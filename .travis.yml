@@ -7,7 +7,7 @@ deploy:
     secure: hMVvueL9oeTjWt/5UrERChX1rrAtIskgce8Fv7KIZ9u5z93wAt3m/dGQwbWjN85wHfWrkqSXQYrqhrr9cq/fhP9Xg6UDxh8525jReGZBlk32kJmX6CYyCJ6nhq424uVBF86oiRA1y6vyYXWxzSiscxcSyFb966hVxs9baIcQUurh2JULTIcwrIMkV4oLjJL/zd/+plQLaA2DBxgaYaNeTu8afQl2ZJTfcnZ6z/vcC5EaYrCVJg3CC8IORGtcwImZCzdVr1FB+XkyATz0Q8K00AiGrUgHsle/WqhkC/HbfAfQhJR9fsUzcaNX9Nx22xpp/yTaizoDOae482c6sEDQK23g4ocm5dUEFCwH+mZGfyoewFKVUmI8F+3L85LsnJknfPzlHNRjbPV7nbPG6ei76sB8SZfuivFJ68ftbmdOm5Bc2djX12S9r1Sbu2SJog9dBDNzw9LreBb9Okzn65QTcXmwvrYG6YADGPEhGaOO+Ck5qYWFOZSadaii5wYnrCcwiGM9lcgzC2yFUQQ+p5SQyXcRKX+imB5OeqEwoQGTozODA/H/25Sjxgf/G4ln7/Ow5RTEInsTNuVlhC6onJ9ITFhYO31jQiERj1KmzuCzGuEQMEBuA1OHoiEOh0B0qtzl0vy3E52HBbb8Cu+VTAhM4/4u01RgSo8pOGAQ7mybh0g=
   secret_access_key:
     secure: CPhudG9ydINx7tzY/8rGxZKvnv0WhXQkFUd8dnAoqQUBsy0W5B3n72PeqP/jcO2uRdyJETKUMvm6N6e98vrJXhby00zSzM/FmT1q4w2UqdbRUOQQYRJmrvozPcrkmNC3bD7MEtw2CrbXKah1IvksyXMRbKgLjIqRRU3JqKNz1dY4XdMns3LUMNrcwyEGhYJmMN9QIo4DXS3W382KzzRRn9Gh9X7TqVE5be7PsMArwrGPCzBeHTKwjm9AX89Lat953MbNssNFWb7OetfKL000OSHn6QKnMGe9dxP4dPRdxsgKC5vzwAr1K0A7o/35PuA7D3yE7J4ScUDAsG5gOM1ez0FqTNj7qLiexen4/p+u+vUTcPOiGu/469TFNS4ly44po5DPoQUBywbovHT/K1SKRHdyWSvgdGTgBWb2JYXl98RnTLSjsK/Dqa1b38gQXEpq+b4NzLXw1n8NuBXljhZj61NFU66PT8Hd0LHuXQTWkW9mc+Hr6MM0iLmTLGLtS/eXrqaS8Yu8Sj1BdHSMZUkSOI+U6ZnYIJZ8e2F6dHNWf4Nnv6yv0rWjx1X4Gl6439dwFGPnpA8JBkS4uwjylm6YG+eIsFueX+Ih7RB/BAjzALt6emh0U1iccXCXgcxKKtjb4E0fvk8MsPCV3jhKKfcDbxPEJXbjAd1D+B6EY2Tz2Qc=
-  template: static-site.yml
+  template: static_site.yml
   stack_name: lorem-static
   promote: true
   region: eu-west-1
@@ -20,5 +20,5 @@ deploy:
     DomainName: kristianjlee.com
     LogsLifecycle: 'true' 
   edge: true
-  on:
-    branch: master
+  # on:
+  #   branch: master
