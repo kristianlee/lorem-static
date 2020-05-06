@@ -18,6 +18,9 @@ Parameters:
     Type: String
     Description: Add day by day access log rotation
     AllowedValues: ['true', 'false']
+  
+  DummyParam:
+    Type: String
 
 Conditions:
   LogRotation: !Equals
@@ -148,3 +151,7 @@ Resources:
           EvaluateTargetHealth: false
           HostedZoneId: Z2FDTNDATAQYW2
   
+Outputs:
+  Website:
+    Value: !Ref DomainName
+    Description: domain name of website
