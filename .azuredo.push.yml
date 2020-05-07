@@ -27,5 +27,5 @@ jobs:
           - ParameterKey: DNSZoneID
             ParameterValue: $(dns_zone_id)
         useChangeSet: true
-        changeSetName: 'azure-devops-change2'
-        autoExecuteChangeSet: true
+        changeSetName: 'azure-devops-changeset-$env:Build.SourceVersion'
+        # autoExecuteChangeSet: true
