@@ -29,8 +29,9 @@ jobs:
           - ParameterKey: DomainName
             ParameterValue: kristianjlee.com
           - ParameterKey: LogsLifecycle
-            ParameterValue: true
-          - CertificateARN: $(certificate_arn)
+            ParameterValue: 'true'
+          - ParameterKey: CertificateARN
+            ParameterValue: $(certificate_arn)
         useChangeSet: true
         changeSetName: 'azure-devops-changeset'
         autoExecuteChangeSet: false
