@@ -1,0 +1,31 @@
+trigger:
+  branches:
+    include:
+    - '*'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: deploycf
+  steps:
+    - task: CloudFormationCreateOrUpdateStack@1
+      inputs:
+        awsCredentials: 'AWS Connection'
+        regionName: 'eu-west-1'
+        stackName: 'lorem-static'
+        templateSource: 'file'
+        templateFile: 'static_site.yml'
+        templateParametersSource: 'inline'
+        templateParameters: |
+          - ParameterKey: DomainName
+            ParameterValue: kristianjlee.com
+          - ParameterKey: LogsLifecycle
+            ParameterValue: 'true'
+          - ParameterKey: CertificateARN
+            ParameterValue: $(certificate_arn)
+          - ParameterKey: DNSZoneID
+            ParameterValue: $(dns_zone_id)
+        useChangeSet: true
+        changeSetName: 'azure-devops-changeset-$(Build.SourceVersion)'
+        autoExecuteChangeSet: false

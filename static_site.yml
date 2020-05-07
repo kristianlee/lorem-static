@@ -148,3 +148,7 @@ Resources:
           EvaluateTargetHealth: false
           HostedZoneId: Z2FDTNDATAQYW2
   
+Outputs:
+  Website:
+    Value: !Ref DomainName
+    Description: domain name of website
