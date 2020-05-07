@@ -25,10 +25,12 @@ jobs:
         templateSource: 'file'
         templateFile: 'static_site.yml'
         templateParametersSource: 'inline'
-        templateParameters:
-          DomainName: kristianjlee.com
-          LogsLifecycle: true
-          CertificateARN: $(certificate_arn)
+        templateParameters: |
+          - ParameterKey: DomainName
+            ParameterValue: kristianjlee.com
+          - ParameterKey: LogsLifecycle
+            ParameterValue: true
+          - CertificateARN: $(certificate_arn)
         useChangeSet: true
         changeSetName: 'azure-devops-changeset'
         autoExecuteChangeSet: false
