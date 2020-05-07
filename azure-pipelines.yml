@@ -32,6 +32,8 @@ jobs:
             ParameterValue: 'true'
           - ParameterKey: CertificateARN
             ParameterValue: $(certificate_arn)
+          - ParameterKey: DNSZoneID
+            ParameterValue: $(dns_zone_id)
         useChangeSet: true
         changeSetName: 'azure-devops-changeset'
         autoExecuteChangeSet: false
