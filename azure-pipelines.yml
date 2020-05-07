@@ -25,7 +25,7 @@ jobs:
         templateSource: 'file'
         templateFile: 'static_site.yml'
         templateParametersSource: 'inline'
-        templateParameters: |
+        templateParameters:
           DomainName: kristianjlee.com
           LogsLifecycle: true
           CertificateARN: $(certificate_arn)
