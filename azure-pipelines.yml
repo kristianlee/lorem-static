@@ -1,0 +1,34 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+# trigger:
+# - master
+
+trigger:
+  branches:
+    include:
+    - '*'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: deploycf
+  steps:
+    - task: CloudFormationCreateOrUpdateStack@1
+      inputs:
+        awsCredentials: 'AWS Connection'
+        regionName: 'eu-west-1'
+        stackName: 'lorem-static'
+        templateSource: 'file'
+        templateFile: 'static_site.yml'
+        templateParametersSource: 'inline'
+        templateParameters: |
+          DomainName: kristianjlee.com
+          LogsLifecycle: true
+          CertificateARN: $(certificate_arn)
+        useChangeSet: true
+        changeSetName: 'azure-devops-changeset'
+        autoExecuteChangeSet: false
