@@ -72,13 +72,15 @@ The SLA for availability in standard-class storage in S3 (used in this configura
 The approach in this project is also to configure a 'failover' bucket which requests would be served from in the event of an outage in the primary bucket's 3 AZs - read more about that below in the ['Origin Group'](#origin-group) section of Cloudfront. 
 
 ### Amazon Cloudfront
-Amazon Cloudfront is set up as part of the distribution here - Cloudfront is a CDN network which caches the content on the S3 bucket and delivers it to our users via whichever endpoint is going to respond the quickest. This ensures low latency and high data transfer rates. 
+Amazon Cloudfront is set up as part of the distribution here - Cloudfront is a CDN which caches the content on the S3 bucket and delivers it to our users via whichever endpoint is going to respond the quickest. This ensures low latency and high data transfer rates. 
 It also benefits from increased reliability and availability because the content is now cached in multiple locations around the world. 
 
 Since the cache is important in maintaining good performance and reliability for the site, it's crucial we monitor the 'Cache Hit Ratio' - i.e. the proportion of requests to the original S3 bucket that are intercepted and served instead by Amazon Cloudfront.
 
-***How to monitor that?***
-***Talk about cache expiration in relation to static sites. ***
+To monitor that cache hit ratio it's necessary to ['Enable additional metrics'](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/viewing-cloudfront-metrics.html#monitoring-console.distributions-additional) within the Cloudwatch console. Alarms can also be set up which will trigger if the cache hit ratio drops below a certain figure. 
+
+The best way to improve the cache hit ratio (once an accurate picture of the current performance is gained from the metrics) is to improve the rate at which content is cached on the static site. 
+Items that rarely change can be singled out for longer cache durations, and it is also possible to set a blanket rule across the site for much longer caches. The details are available on [this AWS docs page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cache-hit-ratio.html) although none of the customisation has been done on this example site. 
 
 #### Origin Group
 Failover has also been configured in Cloudfront - an 'origin group' is set up such that if Cloudfront's requests to the 'primary' S3 bucket fail, they will be rerouted to the 'failover' bucket automatically. 
