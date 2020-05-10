@@ -45,6 +45,26 @@ Parameters:
     Description: the AWS resource Name of the account used to administer the service (for S3 bucket access)
     Default: 'arn:aws:iam::123456789101:user/s3.admin.user'
 
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Required Parameters"
+        Parameters:
+          - AdminAccountARN
+          - ApexDomain
+          - CertificateARN
+          - DomainName
+          - DNSZoneID
+      - 
+        Label: 
+          default: "Optional / Automation Parameters"
+        Parameters: 
+          - AutoS3Deploy
+          - LogsLifecycle
+          - S3DeployUserARN
+
 Conditions:
   LogRotation: !Equals
     - !Ref LogsLifecycle
