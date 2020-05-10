@@ -24,9 +24,9 @@ Amazon S3 buckets and Cloudfront (Amazon's CDN) have been set up in this example
     - *DomainName*: this is the domain name you'd like the website to be available on, e.g. *example.com*.
     - *DNSZoneID*: this can be found in the AWS Route 53 console for the DNS Hosted Zone you intend to use, e.g. *Z8VLZEXAMPLE*
 - Optional parameter values can also be edited including:
-    - *AutoS3Deploy*: to choose whether you will take advantage of the automated S3 deployment - more detail on this available (later in this README)[#s3-deploy]. If this is set true, accurate details must also be provided for S3DeployUserARN (below). 
+    - *AutoS3Deploy*: to choose whether you will take advantage of the automated S3 deployment - more detail on this available [later in this README](#s3-deploy). If this is set true, accurate details must also be provided for S3DeployUserARN (below). 
     - *LogsLifecycle*: choose whether you'd like a lifecycle rule applied to the access logs created in the S3 Bucket. 
-    - *S3DeployUserARN*: the AWS Resource Name of the IAM user to be used to automatically deploy to S3 from Github Actions- more detail on this available (later in this README)[#s3-deploy].
+    - *S3DeployUserARN*: the AWS Resource Name of the IAM user to be used to automatically deploy to S3 from Github Actions- more detail on this available [later in this README](#s3-deploy).
 - Choose your own relevant notification settings or role to use to deploy the Stack, and if happy with the change set, deploy it out!
 - Once the stack has been fully deployed, upload *at least* an index.html file to the 'root' bucket (accessible in the S3 console).
 - The static site should then be accessible at the domain name you chose (and if it's an apex domain, at the 'www.' prefixed version of it too!)
@@ -44,11 +44,12 @@ Changes made and saved to files in that folder should be accessible in the conta
 - Create an IAM user in AWS that only has access to change Cloudformation resources (as detailed in [AWS Cloudformation Security Best Practises](https://aws.amazon.com/blogs/devops/aws-cloudformation-security-best-practices/) (along with creation of R53 records, S3 buckets, and Cloudfront Distributions). 
 )
 - Sign in to Azure Devops Pipelines and link to Github with the correct repo. 
-- Add [AWS Toolkit for Azure DeOps Extension](https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.aws-vsts-tools)
+- Add [AWS Toolkit for Azure DevOps Extension](https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.aws-vsts-tools)
 - Head to 'Project Settings' -> 'Service connections' -> 'New Service Connection'. 
 - Find 'AWS' and add the credentials from the IAM user created above. 
 - Create a pipeline linked from the correct repo in Github and use one of the 'azuredo' .yml files as the source of the pipeline. 
 - In the 'edit' screen for the pipeline, add certificate_arn, dns_zone_id, admin_account_arn and s3_deploy_account_arn as secret variables. 
+- Choose the appropriate values for the other plain-text parameters. 
 - Push up (depending on the conditions chosen in azuredo.yml) and the stack should be created!
 
 ### S3 Deploy
