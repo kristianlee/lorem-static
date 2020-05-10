@@ -1,0 +1,14 @@
+name: lint-cf
+
+on:
+  push:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: CloudFormation lint action
+      uses: scottbrenner/cfn-lint-action@master
+      with:
+        args: static_site.yml

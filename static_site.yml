@@ -5,28 +5,65 @@ Parameters:
   DomainName:
     Type: String
     Description: this is the domain name you'd like the website to be available on, e.g. example.com
+    Default: example.com
     
   DNSZoneID: 
     Type: String
     Description: this can be found in the AWS Route 53 console for the DNS Hosted Zone you intend to use, e.g. Z8VLZEXAMPLE
+    Default: Z8VLZEXAMPLE
   
   CertificateARN:
     Type: String
     Description: the AWS Resource Name of the Amazon Certificate Manager SSL Certificate generated in advance, e.g. arn:aws:acm:region:account:certificate/12345678-1234-1234-1234-123456789012
+    Default: arn:aws:acm:region:account:certificate/12345678-1234-1234-1234-123456789012
   
   LogsLifecycle:
     Type: String
     Description: choose whether you'd like a lifecycle rule applied to the access logs created in the S3 Bucket
     AllowedValues: ['true', 'false']
+    Default: 'true'
   
   ApexDomain:
     Type: String
     Description: choose whether your domain name is an apex one, i.e. example.com (apex) vs site.example.com (non-apex)
     AllowedValues: ['true', 'false']
+    Default: 'true'
+  
+  AutoS3Deploy:
+    Type: String
+    Description: choose whether you will take advantage of the automated S3 deployment (see README)
+    AllowedValues: ['true', 'false']
+    Default: 'false'
+  
+  S3DeployUserARN:
+    Type: String
+    Description: the AWS Resource Name of the IAM user to be used to automatically deploy to S3 from Github Actions
+    Default: 'arn:aws:iam::123456789101:user/s3.user'
   
   AdminAccountARN:
     Type: String
     Description: the AWS resource Name of the account used to administer the service (for S3 bucket access)
+    Default: 'arn:aws:iam::123456789101:user/s3.admin.user'
+
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Required Parameters"
+        Parameters:
+          - AdminAccountARN
+          - ApexDomain
+          - CertificateARN
+          - DomainName
+          - DNSZoneID
+      - 
+        Label: 
+          default: "Optional / Automation Parameters"
+        Parameters: 
+          - AutoS3Deploy
+          - LogsLifecycle
+          - S3DeployUserARN
 
 Conditions:
   LogRotation: !Equals
@@ -35,6 +72,10 @@ Conditions:
   ApexDomain: !Equals
     - !Ref ApexDomain
     - 'true'
+  AutoS3Deploy: !Equals
+    - !Ref AutoS3Deploy
+    - 'true'
+    
 
 Resources:
   RootBucket:
@@ -51,6 +92,7 @@ Resources:
         LogFilePrefix: 's3_root/'
       WebsiteConfiguration:
         IndexDocument: 'index.html'
+        ErrorDocument: 'error.html'
       Tags:
         - Key: Project
           Value: lorem-static 
@@ -62,10 +104,23 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Effect: 'Allow'
+          - Sid: AllowPublicAccess
+            Effect: 'Allow'
             Action: 's3:GetObject'
             Principal: '*'
             Resource: !Sub '${RootBucket.Arn}/*'
+          - !If 
+            - AutoS3Deploy 
+            - Sid: AllowS3AutoDeploy
+              Effect: 'Allow'
+              Action: 
+                - 's3:Put*'
+                - 's3:Delete*'
+              Principal:
+                AWS:
+                  !Ref S3DeployUserARN
+              Resource: !Sub '${RootBucket.Arn}/*'
+            - !Ref 'AWS::NoValue'
 
   FailoverBucket:
     Type: AWS::S3::Bucket
@@ -81,6 +136,7 @@ Resources:
         LogFilePrefix: 's3_failover/'
       WebsiteConfiguration:
         IndexDocument: 'index.html'
+        ErrorDocument: 'error.html'
       Tags:
         - Key: Project
           Value: lorem-static 
@@ -92,10 +148,23 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Effect: 'Allow'
+          - Sid: AllowPublicAccess
+            Effect: 'Allow'
             Action: 's3:GetObject'
             Principal: '*'
             Resource: !Sub '${FailoverBucket.Arn}/*'
+          - !If 
+            - AutoS3Deploy 
+            - Sid: AllowS3AutoDeploy
+              Effect: 'Allow'
+              Action: 
+                - 's3:Put*'
+                - 's3:Delete*'
+              Principal:
+                AWS:
+                  !Ref S3DeployUserARN
+              Resource: !Sub '${FailoverBucket.Arn}/*'
+            - !Ref 'AWS::NoValue'
 
   LoggingBucket:
     Type: AWS::S3::Bucket
