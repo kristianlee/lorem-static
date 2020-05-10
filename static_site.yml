@@ -48,7 +48,7 @@ Resources:
       AccessControl: PublicRead
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucket
-        LogFilePrefix: 's3/'
+        LogFilePrefix: 's3_root/'
       WebsiteConfiguration:
         IndexDocument: 'index.html'
       Tags:
@@ -78,7 +78,7 @@ Resources:
       AccessControl: PublicRead
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucket
-        LogFilePrefix: 's3/'
+        LogFilePrefix: 's3_failover/'
       WebsiteConfiguration:
         IndexDocument: 'index.html'
       Tags:
@@ -143,6 +143,9 @@ Resources:
         Aliases:
           - !Ref DomainName
           - !Sub 'www.${DomainName}'
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ErrorCachingMinTTL: 30
         Origins:
           - CustomOriginConfig:
               HTTPPort: 80
