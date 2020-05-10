@@ -14,15 +14,15 @@ A repo to demo the deployment of a static site
 ### Deployment Procedure
 - Head to the AWS Cloudformation console in the region of your choice, and choose 'Create Stack'
 - Give the stack a meaningful name, add required parameter values in for:
-    - AdminAccountARN: the AWS resource Name of the account used to administer the service (for S3 bucket access)
-    - ApexDomain: choose whether your domain name is an apex one, i.e. example.com (apex) vs site.example.com (non-apex)
-    - CertificateARN: the AWS Resource Name of the Amazon Certificate Manager SSL Certificate generated in advance, e.g. *arn:aws:acm:region:account:certificate/12345678-1234-1234-1234-123456789012*
-    - DomainName: this is the domain name you'd like the website to be available on, e.g. *example.com*.
-    - DNSZoneID: this can be found in the AWS Route 53 console for the DNS Hosted Zone you intend to use, e.g. *Z8VLZEXAMPLE*
+    - *AdminAccountARN*: the AWS resource Name of the account used to administer the service (for S3 bucket access)
+    - *ApexDomain*: choose whether your domain name is an apex one, i.e. example.com (apex) vs site.example.com (non-apex)
+    - *CertificateARN*: the AWS Resource Name of the Amazon Certificate Manager SSL Certificate generated in advance, e.g. *arn:aws:acm:region:account:certificate/12345678-1234-1234-1234-123456789012*
+    - *DomainName*: this is the domain name you'd like the website to be available on, e.g. *example.com*.
+    - *DNSZoneID*: this can be found in the AWS Route 53 console for the DNS Hosted Zone you intend to use, e.g. *Z8VLZEXAMPLE*
 - Optional parameter values can also be edited including:
-    - AutoS3Deploy: to choose whether you will take advantage of the automated S3 deployment - more detail on this available (later in this README)[#s3-deploy]. If this is set true, accurate details must also be provided for S3DeployUserARN (below). 
-    - LogsLifecycle: choose whether you'd like a lifecycle rule applied to the access logs created in the S3 Bucket. 
-    - S3DeployUserARN: the AWS Resource Name of the IAM user to be used to automatically deploy to S3 from Github Actions- more detail on this available (later in this README)[#s3-deploy].
+    - *AutoS3Deploy*: to choose whether you will take advantage of the automated S3 deployment - more detail on this available (later in this README)[#s3-deploy]. If this is set true, accurate details must also be provided for S3DeployUserARN (below). 
+    - *LogsLifecycle*: choose whether you'd like a lifecycle rule applied to the access logs created in the S3 Bucket. 
+    - *S3DeployUserARN*: the AWS Resource Name of the IAM user to be used to automatically deploy to S3 from Github Actions- more detail on this available (later in this README)[#s3-deploy].
 - Choose your own relevant notification settings or role to use to deploy the Stack, and if happy with the change set, deploy it out!
 - Once the stack has been fully deployed, upload *at least* an index.html file to the 'root' bucket (accessible in the S3 console).
 - The static site should then be accessible at the domain name you chose (and if it's an apex domain, at the 'www.' prefixed version of it too!)
