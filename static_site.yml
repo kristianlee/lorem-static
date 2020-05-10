@@ -78,6 +78,12 @@ Conditions:
     
 
 Resources:
+  CloudFrontOriginAccessIdentity:
+    Type: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: OAI for static site
+
   RootBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -86,7 +92,6 @@ Resources:
       - - !Ref 'AWS::StackName'
         - !Ref DomainName
         - root
-      AccessControl: PublicRead
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucket
         LogFilePrefix: 's3_root/'
@@ -104,10 +109,17 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Sid: AllowPublicAccess
+          - Sid: OAIPolicyListBucket
+            Effect: 'Allow'
+            Action: 's3:ListBucket'
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
+            Resource: !Sub '${RootBucket.Arn}'
+          - Sid: OAIPolicyGetBucket
             Effect: 'Allow'
             Action: 's3:GetObject'
-            Principal: '*'
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
             Resource: !Sub '${RootBucket.Arn}/*'
           - !If 
             - AutoS3Deploy 
@@ -130,7 +142,6 @@ Resources:
       - - !Ref 'AWS::StackName'
         - !Ref DomainName
         - failover
-      AccessControl: PublicRead
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucket
         LogFilePrefix: 's3_failover/'
@@ -148,10 +159,17 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Sid: AllowPublicAccess
+          - Sid: OAIPolicyListBucket
+            Effect: 'Allow'
+            Action: 's3:ListBucket'
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
+            Resource: !Sub '${FailoverBucket.Arn}'
+          - Sid: OAIPolicyGetBucket
             Effect: 'Allow'
             Action: 's3:GetObject'
-            Principal: '*'
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
             Resource: !Sub '${FailoverBucket.Arn}/*'
           - !If 
             - AutoS3Deploy 
@@ -215,31 +233,25 @@ Resources:
         CustomErrorResponses:
           - ErrorCode: 404
             ErrorCachingMinTTL: 30
+            ResponsePagePath: '/error.html'
+            ResponseCode: 404
         Origins:
-          - CustomOriginConfig:
-              HTTPPort: 80
-              HTTPSPort: 443
-              OriginKeepaliveTimeout: 5
-              OriginProtocolPolicy: 'http-only'
-              OriginReadTimeout: 30
-            DomainName: !GetAtt RootBucket.DomainName
-            Id: !Join 
+          - Id: !Join 
             - '-'
             - - !Ref 'AWS::StackName'
               - !Ref DomainName
               - root
-          - CustomOriginConfig:
-              HTTPPort: 80
-              HTTPSPort: 443
-              OriginKeepaliveTimeout: 5
-              OriginProtocolPolicy: 'http-only'
-              OriginReadTimeout: 30
-            DomainName: !GetAtt FailoverBucket.DomainName
-            Id: !Join 
+            DomainName: !GetAtt RootBucket.DomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
+          - Id: !Join 
             - '-'
             - - !Ref 'AWS::StackName'
               - !Ref DomainName
               - failover
+            DomainName: !GetAtt FailoverBucket.DomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
         OriginGroups:
           Quantity: 1 
           Items:
