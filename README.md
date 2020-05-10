@@ -53,12 +53,12 @@ Illustrated [here](https://aws.amazon.com/blogs/apn/using-amazon-cloudfront-with
 Docker has been set up in order to help in the local development of the HTML for the static site. 
 To use:
 - Run: `docker-compose -d up` 
-- Head to [http://localhost:8000] and the contents of the 'src' folder should be being served. 
+- Head to [http://localhost:8000](http://localhost:8000) and the contents of the 'src' folder should be being served. 
 
 Changes made and saved to files in that folder should be accessible in the container upon refresh of the page!
 
-## Deploying the Static Site Automatically (via Infrastructure as Code)
-
+## Deploying the Static Site Automatically
+### Infrastructure as Code
 - Create an IAM user in AWS that only has access to change Cloudformation resources (as detailed in [AWS Cloudformation Security Best Practises](https://aws.amazon.com/blogs/devops/aws-cloudformation-security-best-practices/) (along with creation of R53 records, S3 buckets, and Cloudfront Distributions). 
 )
 - Sign in to Azure Devops Pipelines and link to Github with the correct repo. 
@@ -69,4 +69,4 @@ Changes made and saved to files in that folder should be accessible in the conta
 - In the 'edit' screen for the pipeline, add certificate_arn and dns_zone_id as secret variables. 
 - Push up (depending on the conditions chosen in azuredo.yml) and the stack should be created!
 
-
+### S3 Deploy
