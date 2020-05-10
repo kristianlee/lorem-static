@@ -210,7 +210,7 @@ Resources:
             - '-'
             - - !Ref 'AWS::StackName'
               - !Ref DomainName
-              - root
+              - origingroup
           ForwardedValues:
             QueryString: true
             Cookies:
