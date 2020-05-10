@@ -87,6 +87,7 @@ Resources:
   RootBucket:
     Type: AWS::S3::Bucket
     Properties:
+      AccessControl: Private
       BucketName: !Join 
       - '-'
       - - !Ref 'AWS::StackName'
@@ -149,6 +150,7 @@ Resources:
   FailoverBucket:
     Type: AWS::S3::Bucket
     Properties:
+      AccessControl: Private
       BucketName: !Join 
       - '-'
       - - !Ref 'AWS::StackName'
