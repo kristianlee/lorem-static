@@ -4,24 +4,36 @@ Description: Setting up a static site using an S3 Bucket with Cloudfront
 Parameters:
   DomainName:
     Type: String
-    Description: DNS name of the website
+    Description: this is the domain name you'd like the website to be available on, e.g. example.com
     
   DNSZoneID: 
     Type: String
-    Description: which DNS zone is the website being hosted in?
+    Description: this can be found in the AWS Route 53 console for the DNS Hosted Zone you intend to use, e.g. Z8VLZEXAMPLE
   
   CertificateARN:
     Type: String
-    Description: identifier for the AWS Cert manager certificate
+    Description: the AWS Resource Name of the Amazon Certificate Manager SSL Certificate generated in advance, e.g. arn:aws:acm:region:account:certificate/12345678-1234-1234-1234-123456789012
   
   LogsLifecycle:
     Type: String
-    Description: Add day by day access log rotation
+    Description: choose whether you'd like a lifecycle rule applied to the access logs created in the S3 Bucket
     AllowedValues: ['true', 'false']
+  
+  ApexDomain:
+    Type: String
+    Description: choose whether your domain name is an apex one, i.e. example.com (apex) vs site.example.com (non-apex)
+    AllowedValues: ['true', 'false']
+  
+  AdminAccountARN:
+    Type: String
+    Description: the AWS resource Name of the account used to administer the service (for S3 bucket access)
 
 Conditions:
   LogRotation: !Equals
     - !Ref LogsLifecycle
+    - 'true'
+  ApexDomain: !Equals
+    - !Ref ApexDomain
     - 'true'
 
 Resources:
@@ -55,6 +67,36 @@ Resources:
             Principal: '*'
             Resource: !Sub '${RootBucket.Arn}/*'
 
+  FailoverBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join 
+      - '-'
+      - - !Ref 'AWS::StackName'
+        - !Ref DomainName
+        - failover
+      AccessControl: PublicRead
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucket
+        LogFilePrefix: 's3/'
+      WebsiteConfiguration:
+        IndexDocument: 'index.html'
+      Tags:
+        - Key: Project
+          Value: lorem-static 
+
+  FailoverBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FailoverBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Action: 's3:GetObject'
+            Principal: '*'
+            Resource: !Sub '${FailoverBucket.Arn}/*'
+
   LoggingBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -80,6 +122,20 @@ Resources:
         - Key: Project
           Value: lorem-static 
   
+  LoggingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref LoggingBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Action: 's3:*'
+            Principal:
+              AWS:
+                - !Ref AdminAccountARN
+            Resource: !Sub '${LoggingBucket.Arn}/*'
+  
   Cloudfront:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -100,6 +156,44 @@ Resources:
             - - !Ref 'AWS::StackName'
               - !Ref DomainName
               - root
+          - CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginKeepaliveTimeout: 5
+              OriginProtocolPolicy: 'http-only'
+              OriginReadTimeout: 30
+            DomainName: !GetAtt FailoverBucket.DomainName
+            Id: !Join 
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - !Ref DomainName
+              - failover
+        OriginGroups:
+          Quantity: 1 
+          Items:
+            - Id: !Join 
+                - '-'
+                - - !Ref 'AWS::StackName'
+                  - !Ref DomainName
+                  - origingroup
+              FailoverCriteria: 
+                StatusCodes:
+                  Items:
+                    - 404
+                  Quantity: 1
+              Members:
+                Quantity: 2
+                Items:
+                  - OriginId: !Join 
+                    - '-'
+                    - - !Ref 'AWS::StackName'
+                      - !Ref DomainName
+                      - root
+                  - OriginId: !Join 
+                    - '-'
+                    - - !Ref 'AWS::StackName'
+                      - !Ref DomainName
+                      - failover
         DefaultRootObject: 'index.html'
         Enabled: true
         HttpVersion: 'http2'
@@ -107,12 +201,16 @@ Resources:
           AllowedMethods:
           - GET
           - HEAD
+          - OPTIONS
+          CachedMethods:
+          - GET
+          - HEAD
           Compress: true
           TargetOriginId: !Join 
             - '-'
             - - !Ref 'AWS::StackName'
               - !Ref DomainName
-              - root
+              - origingroup
           ForwardedValues:
             QueryString: true
             Cookies:
@@ -141,12 +239,16 @@ Resources:
           DNSName: !GetAtt Cloudfront.DomainName
           EvaluateTargetHealth: false
           HostedZoneId: Z2FDTNDATAQYW2
-      - Name: !Sub 'www.${DomainName}'
-        Type: A
-        AliasTarget:
-          DNSName: !GetAtt Cloudfront.DomainName
-          EvaluateTargetHealth: false
-          HostedZoneId: Z2FDTNDATAQYW2
+      - !If
+        - ApexDomain
+        - Name: !Sub 'www.${DomainName}'
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt Cloudfront.DomainName
+            EvaluateTargetHealth: false
+            HostedZoneId: Z2FDTNDATAQYW2
+        - !Ref AWS::NoValue
+
   
 Outputs:
   Website:

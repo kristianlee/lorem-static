@@ -24,3 +24,7 @@ jobs:
             ParameterValue: $(certificate_arn)
           - ParameterKey: DNSZoneID
             ParameterValue: $(dns_zone_id)
+          - ParameterKey: ApexDomain
+            ParameterValue: 'true'
+          - ParameterKey: AdminAccountARN
+            ParameterValue: $(admin_account_arn)
