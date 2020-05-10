@@ -128,10 +128,22 @@ Resources:
               Action: 
                 - 's3:Put*'
                 - 's3:Delete*'
+                - 's3:List*'
               Principal:
                 AWS:
                   !Ref S3DeployUserARN
               Resource: !Sub '${RootBucket.Arn}/*'
+            - !Ref 'AWS::NoValue'
+          - !If 
+            - AutoS3Deploy 
+            - Sid: AllowS3AutoDeployList
+              Effect: 'Allow'
+              Action: 
+                - 's3:ListBucket'
+              Principal:
+                AWS:
+                  !Ref S3DeployUserARN
+              Resource: !Sub '${RootBucket.Arn}'
             - !Ref 'AWS::NoValue'
 
   FailoverBucket:
@@ -178,10 +190,22 @@ Resources:
               Action: 
                 - 's3:Put*'
                 - 's3:Delete*'
+                - 's3:List*'
               Principal:
                 AWS:
                   !Ref S3DeployUserARN
               Resource: !Sub '${FailoverBucket.Arn}/*'
+            - !Ref 'AWS::NoValue'
+          - !If 
+            - AutoS3Deploy 
+            - Sid: AllowS3AutoDeployList
+              Effect: 'Allow'
+              Action: 
+                - 's3:ListBucket'
+              Principal:
+                AWS:
+                  !Ref S3DeployUserARN
+              Resource: !Sub '${FailoverBucket.Arn}'
             - !Ref 'AWS::NoValue'
 
   LoggingBucket:
