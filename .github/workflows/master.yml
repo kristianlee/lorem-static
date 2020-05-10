@@ -2,8 +2,8 @@ name: Upload Website to S3 Origin Group Buckets
 
 on:
   push:
-    branches:
-    - master
+    # branches:
+    # - master
 
 jobs:
   deploy-failover-bucket:
