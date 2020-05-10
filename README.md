@@ -49,8 +49,13 @@ In this configuration this is dependent on the deployment of identical content t
 Further investigation would be required to try and configure automatic S3 replication to a bucket in an alternative region. 
 Illustrated [here](https://aws.amazon.com/blogs/apn/using-amazon-cloudfront-with-multi-region-amazon-s3-origins/), there's an approach involving a Lambda to intelligently route traffic to the origin chosen by Route53 which could be investigated too. 
 
+## Using the Local Development Environment
+Docker has been set up in order to help in the local development of the HTML for the static site. 
+To use:
+- Run: `docker-compose -d up` 
+- Head to [http://localhost:8000] and the contents of the 'src' folder should be being served. 
 
-
+Changes made and saved to files in that folder should be accessible in the container upon refresh of the page!
 
 ## Deploying the Static Site Automatically (via Infrastructure as Code)
 

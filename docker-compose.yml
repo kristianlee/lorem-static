@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+  local-env:
+    build: .
+    volumes:
+      - ./src:/usr/share/nginx/html/:rw
+    ports:
+      - "8000:80"
