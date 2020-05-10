@@ -31,32 +31,6 @@ Amazon S3 buckets and Cloudfront (Amazon's CDN) have been set up in this example
 - Once the stack has been fully deployed, upload *at least* an index.html file to the 'root' bucket (accessible in the S3 console).
 - The static site should then be accessible at the domain name you chose (and if it's an apex domain, at the 'www.' prefixed version of it too!)
 
-
-## Scaling and Providing High Availability for the Service
-### Amazon S3
-Amazon S3 was chosen as the host for the website's content as a result of its built-in strength in reliability and durability. 
-Data uploaded to S3 buckets in Amazon is spread across a *minimum* of 3 different availability zones, the data in buckets is rated at 99.999999999% durability over a given year. 
-AWS [documentation](https://aws.amazon.com/s3/faqs/) states:
->  For example, if you store 10,000,000 objects with Amazon S3, you can on average expect to incur a loss of a single object once every 10,000 years. 
-The SLA for availability in standard-class storage in S3 (used in this configuration) is 99.99% too, that works out to an agreement of under 4.38 minutes of downtime a month. 
-
-The approach in this project is also to configure a 'failover' bucket which requests would be served from in the event of an outage in the primary bucket's 3 AZs - read more about that below in the ['Origin Group'](#origin-group) section of Cloudfront. 
-
-### Amazon Cloudfront
-Amazon Cloudfront is set up as part of the distribution here - Cloudfront is a CDN network which caches the content on the S3 bucket and delivers it to our users via whichever endpoint is going to respond the quickest. This ensures low latency and high data transfer rates. 
-It also benefits from increased reliability and availability because the content is now cached in multiple locations around the world. 
-
-Since the cache is important in maintaining good performance and reliability for the site, it's crucial we monitor the 'Cache Hit Ratio' - i.e. the proportion of requests to the original S3 bucket that are intercepted and served instead by Amazon Cloudfront.
-
-***How to monitor that?***
-***Talk about cache expiration in relation to static sites. ***
-
-#### Origin Group
-Failover has also been configured in Cloudfront - an 'origin group' is set up such that if Cloudfront's requests to the 'primary' S3 bucket fail, they will be rerouted to the 'failover' bucket automatically. 
-In this configuration this is dependent on the deployment of identical content to both S3 buckets. 
-Further investigation would be required to try and configure automatic S3 replication to a bucket in an alternative region. 
-Illustrated [here](https://aws.amazon.com/blogs/apn/using-amazon-cloudfront-with-multi-region-amazon-s3-origins/), there's an approach involving a Lambda to intelligently route traffic to the origin chosen by Route53 which could be investigated too. 
-
 ## Using the Local Development Environment
 Docker has been set up in order to help in the local development of the HTML for the static site. 
 To use:
@@ -85,3 +59,30 @@ Changes made and saved to files in that folder should be accessible in the conta
 - Add items to be uploaded to S3 to the 'src' folder in this repo (there is a sample template from [http://html5up.net/](http://html5up.net/) there by default). 
 - Add the FAILOVER_S3_BUCKET and ROOT_S3_BUCKET bucket names in as secrets to the Github settings console. 
 - Merge in to Master branch - the contents of the 'src' folder in this repo should be deployed automatically both to the failover and root bucket. 
+
+
+## Scaling and Providing High Availability for the Service
+### Amazon S3
+Amazon S3 was chosen as the host for the website's content as a result of its built-in strength in reliability and durability. 
+Data uploaded to S3 buckets in Amazon is spread across a *minimum* of 3 different availability zones, the data in buckets is rated at 99.999999999% durability over a given year. 
+AWS [documentation](https://aws.amazon.com/s3/faqs/) states:
+>  For example, if you store 10,000,000 objects with Amazon S3, you can on average expect to incur a loss of a single object once every 10,000 years. 
+The SLA for availability in standard-class storage in S3 (used in this configuration) is 99.99% too, that works out to an agreement of under 4.38 minutes of downtime a month. 
+
+The approach in this project is also to configure a 'failover' bucket which requests would be served from in the event of an outage in the primary bucket's 3 AZs - read more about that below in the ['Origin Group'](#origin-group) section of Cloudfront. 
+
+### Amazon Cloudfront
+Amazon Cloudfront is set up as part of the distribution here - Cloudfront is a CDN network which caches the content on the S3 bucket and delivers it to our users via whichever endpoint is going to respond the quickest. This ensures low latency and high data transfer rates. 
+It also benefits from increased reliability and availability because the content is now cached in multiple locations around the world. 
+
+Since the cache is important in maintaining good performance and reliability for the site, it's crucial we monitor the 'Cache Hit Ratio' - i.e. the proportion of requests to the original S3 bucket that are intercepted and served instead by Amazon Cloudfront.
+
+***How to monitor that?***
+***Talk about cache expiration in relation to static sites. ***
+
+#### Origin Group
+Failover has also been configured in Cloudfront - an 'origin group' is set up such that if Cloudfront's requests to the 'primary' S3 bucket fail, they will be rerouted to the 'failover' bucket automatically. 
+In this configuration this is dependent on the deployment of identical content to both S3 buckets. 
+Further investigation would be required to try and configure automatic S3 replication to a bucket in an alternative region. 
+Illustrated [here](https://aws.amazon.com/blogs/apn/using-amazon-cloudfront-with-multi-region-amazon-s3-origins/), there's an approach involving a Lambda to intelligently route traffic to the origin chosen by Route53 which could be investigated too. 
+
