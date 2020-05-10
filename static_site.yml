@@ -134,6 +134,17 @@ Resources:
                   !Ref S3DeployUserARN
               Resource: !Sub '${RootBucket.Arn}/*'
             - !Ref 'AWS::NoValue'
+          - !If 
+            - AutoS3Deploy 
+            - Sid: AllowS3AutoDeployList
+              Effect: 'Allow'
+              Action: 
+                - 's3:ListBucket'
+              Principal:
+                AWS:
+                  !Ref S3DeployUserARN
+              Resource: !Sub '${RootBucket.Arn}'
+            - !Ref 'AWS::NoValue'
 
   FailoverBucket:
     Type: AWS::S3::Bucket
@@ -184,6 +195,17 @@ Resources:
                 AWS:
                   !Ref S3DeployUserARN
               Resource: !Sub '${FailoverBucket.Arn}/*'
+            - !Ref 'AWS::NoValue'
+          - !If 
+            - AutoS3Deploy 
+            - Sid: AllowS3AutoDeployList
+              Effect: 'Allow'
+              Action: 
+                - 's3:ListBucket'
+              Principal:
+                AWS:
+                  !Ref S3DeployUserARN
+              Resource: !Sub '${FailoverBucket.Arn}'
             - !Ref 'AWS::NoValue'
 
   LoggingBucket:
