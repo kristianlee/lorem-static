@@ -70,3 +70,10 @@ Changes made and saved to files in that folder should be accessible in the conta
 - Push up (depending on the conditions chosen in azuredo.yml) and the stack should be created!
 
 ### S3 Deploy
+- Create a new IAM user which can be used to deploy to S3 via Github Actions. It's not necessary to assign any permissions, these will be passed using the bucket policy. 
+- Add their access keys as S3_AWS_ACCESS_KEY_ID and S3_AWS_SECRET_ACCESS_KEY to the Github Settings -> Secrets console. 
+- Set the Cloudformation parameter 'AutoS3Deploy' to 'true' and copy the IAM user's ARN into the 'S3DeployUserARN' parameter.
+- Merge in to the Master branch (assuming that Infrastructure as Code is set up as above), or deploy the Cloudformation manually. 
+- Add items to be uploaded to S3 to the 'src' folder in this repo (there is a sample template from [http://html5up.net/](http://html5up.net/) there by default). 
+- Add the FAILOVER_S3_BUCKET and ROOT_S3_BUCKET bucket names in as secrets to the Github settings console. 
+- Merge in to Master branch - the contents of the 'src' folder in this repo should be deployed automatically both to the failover and root bucket. 

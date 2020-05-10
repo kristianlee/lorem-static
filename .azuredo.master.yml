@@ -28,3 +28,5 @@ jobs:
             ParameterValue: 'true'
           - ParameterKey: AdminAccountARN
             ParameterValue: $(admin_account_arn)
+          - ParameterKey: S3DeployUserARN
+            ParameterValue: $(s3_deploy_account_arn)
