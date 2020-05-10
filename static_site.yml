@@ -24,6 +24,10 @@ Parameters:
     Description: choose whether your domain name is an apex one, i.e. example.com (apex) vs site.example.com (non-apex)
     AllowedValues: ['true', 'false']
   
+  AdminAccountARN:
+    Type: String
+    Description: the AWS resource Name of the account used to administer the service (for S3 bucket access)
+
 Conditions:
   LogRotation: !Equals
     - !Ref LogsLifecycle
@@ -81,6 +85,18 @@ Resources:
         - Key: Project
           Value: lorem-static 
 
+  FailoverBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FailoverBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Action: 's3:GetObject'
+            Principal: '*'
+            Resource: !Sub '${FailoverBucket.Arn}/*'
+
   LoggingBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -105,6 +121,20 @@ Resources:
       Tags:
         - Key: Project
           Value: lorem-static 
+  
+  LoggingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref LoggingBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Action: 's3:*'
+            Principal:
+              AWS:
+                - !Ref AdminAccountARN
+            Resource: !Sub '${LoggingBucket.Arn}/*'
   
   Cloudfront:
     Type: AWS::CloudFront::Distribution
@@ -149,13 +179,8 @@ Resources:
               FailoverCriteria: 
                 StatusCodes:
                   Items:
-                    - 500
-                    - 504
-                    - 502
                     - 404
-                    - 503
-                    - 403
-                  Quantity: 6
+                  Quantity: 1
               Members:
                 Quantity: 2
                 Items:
@@ -174,6 +199,10 @@ Resources:
         HttpVersion: 'http2'
         DefaultCacheBehavior:
           AllowedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
+          CachedMethods:
           - GET
           - HEAD
           Compress: true

@@ -28,6 +28,8 @@ jobs:
             ParameterValue: $(dns_zone_id)
           - ParameterKey: ApexDomain
             ParameterValue: 'true'
+          - ParameterKey: AdminAccountARN
+            ParameterValue: $(admin_account_arn)
         useChangeSet: true
         changeSetName: 'azure-devops-changeset-$(Build.SourceVersion)'
         autoExecuteChangeSet: false

@@ -18,6 +18,7 @@ A repo to demo the deployment of a static site
     - DomainName: this is the domain name you'd like the website to be available on, e.g. *example.com*.
     - ApexDomain: choose whether your domain name is an apex one, i.e. example.com (apex) vs site.example.com (non-apex)
     - LogsLifecycle: choose whether you'd like a lifecycle rule applied to the access logs created in the S3 Bucket. 
+    - AdminAccountARN: the AWS resource Name of the account used to administer the service (for S3 bucket access)
 - Choose your own relevant notification settings or role to use to deploy the Stack, and if happy with the change set, deploy it out!
 - Once the stack has been fully deployed, upload *at least* an index.html file to the 'root' bucket (accessible in the S3 console).
 - The static site should then be accessible at the domain name you chose (and if it's an apex domain, at the 'www.' prefixed version of it too!)
