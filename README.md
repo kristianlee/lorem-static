@@ -48,7 +48,7 @@ Changes made and saved to files in that folder should be accessible in the conta
 - Head to 'Project Settings' -> 'Service connections' -> 'New Service Connection'. 
 - Find 'AWS' and add the credentials from the IAM user created above. 
 - Create a pipeline linked from the correct repo in Github and use one of the 'azuredo' .yml files as the source of the pipeline. 
-- In the 'edit' screen for the pipeline, add certificate_arn and dns_zone_id as secret variables. 
+- In the 'edit' screen for the pipeline, add certificate_arn, dns_zone_id, admin_account_arn and s3_deploy_account_arn as secret variables. 
 - Push up (depending on the conditions chosen in azuredo.yml) and the stack should be created!
 
 ### S3 Deploy

@@ -32,6 +32,8 @@ jobs:
             ParameterValue: $(admin_account_arn)
           - ParameterKey: S3DeployUserARN
             ParameterValue: $(s3_deploy_account_arn)
+          - ParameterKey: AutoS3Deploy
+            ParameterValue: 'true'
         useChangeSet: true
         changeSetName: 'azure-devops-changeset-$(Build.SourceVersion)'
         autoExecuteChangeSet: false
