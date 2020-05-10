@@ -92,7 +92,6 @@ Resources:
       - - !Ref 'AWS::StackName'
         - !Ref DomainName
         - root
-      AccessControl: PublicRead
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucket
         LogFilePrefix: 's3_root/'
@@ -110,11 +109,6 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Sid: AllowPublicAccess
-            Effect: 'Allow'
-            Action: 's3:GetObject'
-            Principal: '*'
-            Resource: !Sub '${RootBucket.Arn}/*'
           - Sid: OAIPolicyListBucket
             Effect: 'Allow'
             Action: 's3:ListBucket'
@@ -148,7 +142,6 @@ Resources:
       - - !Ref 'AWS::StackName'
         - !Ref DomainName
         - failover
-      AccessControl: PublicRead
       LoggingConfiguration:
         DestinationBucketName: !Ref LoggingBucket
         LogFilePrefix: 's3_failover/'
@@ -166,11 +159,6 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Sid: AllowPublicAccess
-            Effect: 'Allow'
-            Action: 's3:GetObject'
-            Principal: '*'
-            Resource: !Sub '${FailoverBucket.Arn}/*'
           - Sid: OAIPolicyListBucket
             Effect: 'Allow'
             Action: 's3:ListBucket'
@@ -264,30 +252,6 @@ Resources:
             DomainName: !GetAtt FailoverBucket.DomainName
             S3OriginConfig:
               OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
-          # - CustomOriginConfig:
-          #     HTTPPort: 80
-          #     HTTPSPort: 443
-          #     OriginKeepaliveTimeout: 5
-          #     OriginProtocolPolicy: 'http-only'
-          #     OriginReadTimeout: 30
-          #   DomainName: !GetAtt RootBucket.DomainName
-          #   Id: !Join 
-          #   - '-'
-          #   - - !Ref 'AWS::StackName'
-          #     - !Ref DomainName
-          #     - root
-          # - CustomOriginConfig:
-          #     HTTPPort: 80
-          #     HTTPSPort: 443
-          #     OriginKeepaliveTimeout: 5
-          #     OriginProtocolPolicy: 'http-only'
-          #     OriginReadTimeout: 30
-          #   DomainName: !GetAtt FailoverBucket.DomainName
-          #   Id: !Join 
-          #   - '-'
-          #   - - !Ref 'AWS::StackName'
-          #     - !Ref DomainName
-          #     - failover
         OriginGroups:
           Quantity: 1 
           Items:

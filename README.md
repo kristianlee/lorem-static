@@ -1,7 +1,11 @@
 # lorem-static
-A repo to demo the deployment of a static site
+A demonstration of the deployment of a static site
 
 ## Architecture
+Amazon S3 buckets and Cloudfront (Amazon's CDN) have been set up in this example of static site infrastructure. It's been designed for speed, resilience and security and a basic illustration of its components is shown below:
+
+![architecture diagram](./architecture_diagram.png)
+
 
 ## Deploying the Static Site Manually
 ### Prerequisites
